@@ -1,0 +1,4 @@
+# The bundled maven repository must stay byte-exact: the .md5/.sha1/.sha256/
+# .sha512 sidecars are checksums of the files next to them, so line-ending
+# normalization on checkout would invalidate them.
+Assets/Public/GooglePlayGames/com.google.play.games/Editor/m2repository/** -text
