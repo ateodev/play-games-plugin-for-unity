@@ -126,9 +126,17 @@ namespace GooglePlayGames.Editor
                     // Search for root path in plugin locations for both Asset packages and UPM packages
                     string[] dirs = Directory.GetDirectories("Packages", RootFolderName, SearchOption.AllDirectories);
                     string[] dir1 = Directory.GetDirectories("Assets", RootFolderName, SearchOption.AllDirectories);
+                    // ATEO PATCH (registry install): a package installed from a registry or
+                    // tarball exists on disk only as Library/PackageCache/<name>@<hash> —
+                    // the virtual Packages/<name> path is not a physical directory, so the
+                    // searches above find nothing and this getter would throw.
+                    string[] dir2 = Directory.Exists("Library/PackageCache")
+                        ? Directory.GetDirectories("Library/PackageCache", RootFolderName + "@*", SearchOption.TopDirectoryOnly)
+                        : new string[0];
                     int dirsLength = dirs.Length;
-                    Array.Resize<string>(ref dirs, dirsLength + dir1.Length);
+                    Array.Resize<string>(ref dirs, dirsLength + dir1.Length + dir2.Length);
                     Array.Copy(dir1, 0, dirs, dirsLength, dir1.Length);
+                    Array.Copy(dir2, 0, dirs, dirsLength + dir1.Length, dir2.Length);
 #else
                     string[] dirs = Directory.GetDirectories("Assets", RootFolderName, SearchOption.AllDirectories);
 #endif
