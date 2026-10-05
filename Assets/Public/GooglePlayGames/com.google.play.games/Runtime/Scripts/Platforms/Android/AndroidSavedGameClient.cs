@@ -274,8 +274,12 @@ namespace GooglePlayGames.Android
 
             if (!convertedMetadata.JavaContents.Call<bool>("writeBytes", updatedBinaryData))
             {
-                OurUtils.Logger.e("This method requires an open ISavedGameMetadata.");
+                // ATEO PATCH (failed write): writeBytes returns false when the write to the device
+                // failed partway, so committing would upload whatever is on disk and report a second
+                // result through the callback.
+                OurUtils.Logger.e("Failed to write saved game data to the device.");
                 callback(SavedGameRequestStatus.BadInputError, null);
+                return;
             }
 
             using (var convertedMetadataChange = AsMetadataChange(updateForMetadata))
@@ -414,8 +418,12 @@ namespace GooglePlayGames.Android
                 {
                     if (!contentUpdate.Call<bool>("writeBytes", updatedData))
                     {
-                        OurUtils.Logger.e("Can't update snapshot contents during conflict resolution.");
+                        // ATEO PATCH (failed write): writeBytes returns false when the write to the
+                        // device failed partway, so resolving would upload whatever is on disk and
+                        // report a second result through the completion callback.
+                        OurUtils.Logger.e("Failed to write saved game data to the device during conflict resolution.");
                         mCompleteCallback(SavedGameRequestStatus.BadInputError, null);
+                        return;
                     }
 
                     using (var convertedMetadataChange = AsMetadataChange(metadataUpdate))
