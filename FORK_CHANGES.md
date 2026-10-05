@@ -21,12 +21,14 @@ named by its subject, with the hash it has on this branch.
 1. **A saved game is not committed after its write to the device failed.** In `CommitUpdate` and in the
    conflict resolver's `ResolveConflict`, a `writeBytes` that returned false reported `BadInputError` and
    then went on to `commitAndClose` or `resolveConflict` anyway. `writeBytes` returns false only for open
-   contents whose write to disk failed partway, so the commit uploaded whatever was on disk under the new
+   contents whose write to disk failed, so the commit uploaded whatever was on disk under the new
    metadata, and the callback reported a second result. Both sites now return after the error callback, and
    the log says the write to the device failed. The status stays `BadInputError`, so callers see the same
    first result as before. It lives in `Runtime/Scripts/Platforms/Android/AndroidSavedGameClient.cs`,
-   marked `ATEO PATCH (failed write)` at both sites. The commit is "Stop a saved game commit after its write
-   to the device failed", `7f1c234b`. Upstream, the same change is a pull request to be opened from the
+   marked `ATEO PATCH (failed write)` at both sites. The commits are "Stop a saved game commit after its
+   write to the device failed", `7f1c234b`, and "The failed write patch's comments say writeBytes fails
+   when writing the data fails, not only partway", `e24e982b`. Upstream, the same change is a pull request
+   to be opened from the
    branch `fix/saved-game-commit-after-failed-write`, and
    [issue 3156](https://github.com/playgameservices/play-games-plugin-for-unity/issues/3156) reads like this
    failure. It is dropped when the fork moves to an upstream release that carries that pull request, or a fix
