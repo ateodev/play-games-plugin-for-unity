@@ -513,6 +513,17 @@ namespace GooglePlayGames.Editor
             }
 
             GPGSUtil.WriteFile(destFilename, manifestBody);
+
+            // ATEO PATCH (registry install): the .unitypackage ships the androidlib
+            // skeleton, and a UPM package cannot install files into Assets. So the
+            // generated folder is made a valid Android library project here.
+            string propertiesPath = SlashesToPlatformSeparator(
+                Path.Combine(Path.GetDirectoryName(destFilename), "project.properties"));
+            if (!File.Exists(propertiesPath))
+            {
+                GPGSUtil.WriteFile(propertiesPath, "target=android-9\nandroid.library=true\n");
+            }
+
             GPGSUtil.UpdateGameInfo();
         }
 
